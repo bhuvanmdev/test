@@ -3,6 +3,8 @@ license: mit
 pipeline_tag: image-to-3d
 ---
 
+A modified version of [this](https://huggingface.co/dylanebert/LGM-full) repo
+
 # LGM Full
 
 This custom pipeline encapsulates the full [LGM](https://huggingface.co/ashawkey/LGM) pipeline, including [multi-view diffusion](https://huggingface.co/ashawkey/imagedream-ipmv-diffusers).
