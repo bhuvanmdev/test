@@ -238,14 +238,21 @@ class LGM(ModelMixin, ConfigMixin):
         self.rgb_act = lambda x: 0.5 * torch.tanh(x) + 0.5
 
     def prepare_default_rays(self, device, elevation=0):
+        # cam_poses = np.stack(
+        #     [
+        #         orbit_camera(elevation, 0, radius=self.radius),
+        #         orbit_camera(elevation, 90, radius=self.radius),
+        #         orbit_camera(elevation, 180, radius=self.radius),
+        #         orbit_camera(elevation, 270, radius=self.radius),
+        #     ],
+        #     axis=0,
+        # )
+        angles = np.linspace(0, 360, self.views, endpoint=False)
         cam_poses = np.stack(
-            [
-                orbit_camera(elevation, 0, radius=self.radius),
-                orbit_camera(elevation, 90, radius=self.radius),
-                orbit_camera(elevation, 180, radius=self.radius),
-                orbit_camera(elevation, 270, radius=self.radius),
-            ],
-            axis=0,
+                [
+                    orbit_camera(elevation, angle, radius=self.radius) for angle in angles
+                ],
+                axis=0
         )
         cam_poses = torch.from_numpy(cam_poses)
 
