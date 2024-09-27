@@ -1601,7 +1601,7 @@ class LGMFullPipeline(DiffusionPipeline):
             self.final_offload_hook.offload()
 
         # images = np.stack([image[1], image[2], image[3], image[0]], axis=0)
-        images = np.concatenate([images[1:], images[:1]], axis=0)
+        images = np.concatenate([image[1:], image[:1]], axis=0)
         images = torch.from_numpy(images).permute(0, 3, 1, 2).float().cuda()
         images = F.interpolate(
             images,
