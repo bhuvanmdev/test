@@ -1,6 +1,6 @@
 {
     "_class_name": "LGMFullPipeline",
-    "_diffusers_version": "0.25.0",
+    "_diffusers_version": "0.27.2",
     "feature_extractor": ["transformers", "CLIPImageProcessor"],
     "image_encoder": ["transformers", "CLIPVisionModel"],
     "requires_safety_checker": false,
