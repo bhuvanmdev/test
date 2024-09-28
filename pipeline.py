@@ -1613,7 +1613,7 @@ class LGMFullPipeline(DiffusionPipeline):
             images, self.imagenet_default_mean, self.imagenet_default_std
         )
 
-        rays_embeddings = self.lgm.prepare_default_rays("cuda", elevation=0)
+        rays_embeddings = self.lgm.prepare_default_rays("cuda", elevation=0,views=num_frames)
         images = torch.cat([images, rays_embeddings], dim=1).unsqueeze(0)
         images = images.half().cuda()
 
