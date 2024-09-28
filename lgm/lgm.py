@@ -282,7 +282,7 @@ class LGM(ModelMixin, ConfigMixin):
         x = self.unet(images,V) ###
         x = self.conv(x)
 
-        x = x.reshape(B, 4, 14, self.splat_size, self.splat_size)
+        x = x.reshape(B, V, 14, self.splat_size, self.splat_size)
 
         x = x.permute(0, 1, 3, 4, 2).reshape(B, -1, 14)
 
