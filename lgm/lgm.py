@@ -237,7 +237,7 @@ class LGM(ModelMixin, ConfigMixin):
         self.rot_act = F.normalize
         self.rgb_act = lambda x: 0.5 * torch.tanh(x) + 0.5
 
-    def prepare_default_rays(self, device, elevation=0,views = 5):
+    def prepare_default_rays(self, device, elevation=0,views = 4):
         # cam_poses = np.stack(
         #     [
         #         orbit_camera(elevation, 0, radius=self.radius),
@@ -279,7 +279,7 @@ class LGM(ModelMixin, ConfigMixin):
         B, V, C, H, W = images.shape
         images = images.view(B * V, C, H, W)
 
-        x = self.unet(images)
+        x = self.unet(images,V) ###
         x = self.conv(x)
 
         x = x.reshape(B, 4, 14, self.splat_size, self.splat_size)
@@ -518,21 +518,21 @@ class MVAttention(nn.Module):
             dim, num_heads, qkv_bias, proj_bias, attn_drop, proj_drop
         )
 
-    def forward(self, x):
+    def forward(self, x,views): ###
         BV, C, H, W = x.shape
-        B = BV // self.num_frames
+        B = BV // views###self.num_frames
 
         res = x
         x = self.norm(x)
 
         x = (
-            x.reshape(B, self.num_frames, C, H, W)
+            x.reshape(B, views, C, H, W)###
             .permute(0, 1, 3, 4, 2)
             .reshape(B, -1, C)
         )
         x = self.attn(x)
         x = (
-            x.reshape(B, self.num_frames, H, W, C)
+            x.reshape(B, views, H, W, C)###
             .permute(0, 1, 4, 2, 3)
             .reshape(BV, C, H, W)
         )
@@ -634,12 +634,12 @@ class DownBlock(nn.Module):
                 out_channels, out_channels, kernel_size=3, stride=2, padding=1
             )
 
-    def forward(self, x):
+    def forward(self, x,views):
         xs = []
         for attn, net in zip(self.attns, self.nets):
             x = net(x)
             if attn:
-                x = attn(x)
+                x = attn(x,views)
             xs.append(x)
         if self.downsample:
             x = self.downsample(x)
@@ -672,11 +672,11 @@ class MidBlock(nn.Module):
         self.nets = nn.ModuleList(nets)
         self.attns = nn.ModuleList(attns)
 
-    def forward(self, x):
+    def forward(self, x, views):
         x = self.nets[0](x)
         for attn, net in zip(self.attns, self.nets[1:]):
             if attn:
-                x = attn(x)
+                x = attn(x,views)
             x = net(x)
         return x
 
@@ -717,14 +717,14 @@ class UpBlock(nn.Module):
                 out_channels, out_channels, kernel_size=3, stride=1, padding=1
             )
 
-    def forward(self, x, xs):
+    def forward(self, x, xs,views): ###
         for attn, net in zip(self.attns, self.nets):
             res_x = xs[-1]
             xs = xs[:-1]
             x = torch.cat([x, res_x], dim=1)
             x = net(x)
             if attn:
-                x = attn(x)
+                x = attn(x,views) ##
         if self.upsample:
             x = F.interpolate(x, scale_factor=2.0, mode="nearest")
             x = self.upsample(x)
@@ -798,17 +798,17 @@ class UNet(nn.Module):
             up_channels[-1], out_channels, kernel_size=3, stride=1, padding=1
         )
 
-    def forward(self, x):
+    def forward(self, x,views):###
         x = self.conv_in(x)
         xss = [x]
         for block in self.down_blocks:
-            x, xs = block(x)
+            x, xs = block(x,views)###
             xss.extend(xs)
-        x = self.mid_block(x)
+        x = self.mid_block(x,views) ###
         for block in self.up_blocks:
             xs = xss[-len(block.nets) :]
             xss = xss[: -len(block.nets)]
-            x = block(x, xs)
+            x = block(x, xs,views)
         x = self.norm_out(x)
         x = F.silu(x)
         x = self.conv_out(x)
