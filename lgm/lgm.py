@@ -237,7 +237,7 @@ class LGM(ModelMixin, ConfigMixin):
         self.rot_act = F.normalize
         self.rgb_act = lambda x: 0.5 * torch.tanh(x) + 0.5
 
-    def prepare_default_rays(self, device, elevation=0):
+    def prepare_default_rays(self, device, elevation=0,views = 5):
         # cam_poses = np.stack(
         #     [
         #         orbit_camera(elevation, 0, radius=self.radius),
@@ -247,7 +247,7 @@ class LGM(ModelMixin, ConfigMixin):
         #     ],
         #     axis=0,
         # )
-        angles = np.linspace(0, 360, self.views, endpoint=False)
+        angles = np.linspace(0, 360, views, endpoint=False)
         cam_poses = np.stack(
                 [
                     orbit_camera(elevation, angle, radius=self.radius) for angle in angles
