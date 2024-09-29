@@ -1009,7 +1009,7 @@ class MultiViewUNetModel(ModelMixin, ConfigMixin):
             emb = emb + self.camera_embed(camera)
 
         # imagedream variant
-        if self.ip_dim > 0 and ip:
+        if self.ip_dim > 0 and ip is not None:
             x[(num_frames - 1) :: num_frames, :, :, :] = ip_img  # place at [4, 9]
             ip_emb = self.image_embed(ip)
             context = torch.cat((context, ip_emb), 1)
