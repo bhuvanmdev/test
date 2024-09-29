@@ -1618,4 +1618,4 @@ class LGMFullPipeline(DiffusionPipeline):
         images = images.half().cuda()
 
         result = self.lgm(images)
-        return result
+        return result,images
