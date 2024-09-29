@@ -17,6 +17,7 @@
   "image_size": 32,
   "in_channels": 4,
   "model_channels": 320,
+  "ip_dim": 16,
   "num_head_channels": 64,
   "num_res_blocks": 2,
   "out_channels": 4,
